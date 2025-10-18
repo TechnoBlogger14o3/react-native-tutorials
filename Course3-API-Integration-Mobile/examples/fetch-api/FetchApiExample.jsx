@@ -1,79 +1,107 @@
 import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Platform,
+  RefreshControl,
+} from 'react-native';
 
 // Example 1: Basic Fetch API Usage
 function BasicFetchExample() {
-  const [users, setUsers] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Using JSONPlaceholder API for demo
-      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json();
-      setUsers(data);
+      const result = await response.json();
+      setData(result);
     } catch (err) {
       setError(err.message);
-      console.error('Fetch error:', err);
+      Alert.alert('Error', `Failed to fetch data: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const fetchWithError = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // This will intentionally fail
+      const response = await fetch('https://jsonplaceholder.typicode.com/invalid-endpoint');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError(err.message);
+      Alert.alert('Error', `Failed to fetch data: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="basic-fetch-example">
-      <h2>🌐 Basic Fetch API</h2>
+    <View style={styles.container}>
+      <Text style={styles.title}>🌐 Basic Fetch API</Text>
       
-      <div className="fetch-controls">
-        <button onClick={fetchUsers} disabled={loading}>
-          {loading ? 'Loading...' : '🔄 Refresh Users'}
-        </button>
-      </div>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={fetchData} disabled={loading}>
+          <Text style={styles.buttonText}>
+            {loading ? 'Loading...' : '🔄 Fetch Data'}
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.errorButton} onPress={fetchWithError} disabled={loading}>
+          <Text style={styles.buttonText}>
+            {loading ? 'Loading...' : '❌ Test Error'}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {loading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading users...</p>
-        </div>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007bff" />
+          <Text style={styles.loadingText}>Loading data...</Text>
+        </View>
       )}
 
       {error && (
-        <div className="error">
-          <h3>❌ Error</h3>
-          <p>{error}</p>
-          <button onClick={fetchUsers}>Try Again</button>
-        </div>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>Error</Text>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
       )}
 
-      {!loading && !error && users.length > 0 && (
-        <div className="users-grid">
-          {users.slice(0, 6).map(user => (
-            <div key={user.id} className="user-card">
-              <h3>{user.name}</h3>
-              <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Phone:</strong> {user.phone}</p>
-              <p><strong>Website:</strong> {user.website}</p>
-              <div className="user-address">
-                <strong>Address:</strong>
-                <p>{user.address.street}, {user.address.city}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {data && (
+        <View style={styles.dataContainer}>
+          <Text style={styles.dataTitle}>✅ Data Loaded</Text>
+          <Text style={styles.dataId}>ID: {data.id}</Text>
+          <Text style={styles.dataTitleText}>Title: {data.title}</Text>
+          <Text style={styles.dataBody}>Body: {data.body}</Text>
+        </View>
       )}
-    </div>
+    </View>
   );
 }
 
@@ -82,156 +110,155 @@ function PostRequestExample() {
   const [formData, setFormData] = useState({
     title: '',
     body: '',
-    userId: 1
+    userId: 1,
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [field]: value
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  const submitPost = async () => {
     try {
       setLoading(true);
       setError(null);
       setResult(null);
-
+      
       const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const data = await response.json();
-      setResult(data);
+      
+      const result = await response.json();
+      setResult(result);
+      Alert.alert('Success', 'Post created successfully!');
       
       // Reset form
       setFormData({ title: '', body: '', userId: 1 });
     } catch (err) {
       setError(err.message);
-      console.error('POST error:', err);
+      Alert.alert('Error', `Failed to create post: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="post-request-example">
-      <h2>📤 POST Request Example</h2>
+    <View style={styles.container}>
+      <Text style={styles.title}>📝 POST Request Example</Text>
       
-      <form onSubmit={handleSubmit} className="post-form">
-        <div className="form-group">
-          <label htmlFor="title">Title:</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
+      <ScrollView style={styles.formContainer}>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Title:</Text>
+          <TextInput
+            style={styles.input}
             value={formData.title}
-            onChange={handleChange}
-            required
+            onChangeText={(text) => handleInputChange('title', text)}
             placeholder="Enter post title"
+            placeholderTextColor="#999"
           />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="body">Content:</label>
-          <textarea
-            id="body"
-            name="body"
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Body:</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
             value={formData.body}
-            onChange={handleChange}
-            required
-            placeholder="Enter post content"
-            rows="4"
+            onChangeText={(text) => handleInputChange('body', text)}
+            placeholder="Enter post body"
+            placeholderTextColor="#999"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
           />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="userId">User ID:</label>
-          <input
-            type="number"
-            id="userId"
-            name="userId"
-            value={formData.userId}
-            onChange={handleChange}
-            min="1"
-            max="10"
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>User ID:</Text>
+          <TextInput
+            style={styles.input}
+            value={formData.userId.toString()}
+            onChangeText={(text) => handleInputChange('userId', parseInt(text) || 1)}
+            placeholder="Enter user ID"
+            placeholderTextColor="#999"
+            keyboardType="numeric"
           />
-        </div>
-        
-        <button type="submit" disabled={loading}>
-          {loading ? 'Posting...' : '📝 Create Post'}
-        </button>
-      </form>
+        </View>
+
+        <TouchableOpacity 
+          style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+          onPress={submitPost}
+          disabled={loading}
+        >
+          <Text style={styles.submitButtonText}>
+            {loading ? 'Creating...' : '📤 Create Post'}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       {loading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Creating post...</p>
-        </div>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007bff" />
+          <Text style={styles.loadingText}>Creating post...</Text>
+        </View>
       )}
 
       {error && (
-        <div className="error">
-          <h3>❌ Error</h3>
-          <p>{error}</p>
-        </div>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>Error</Text>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
       )}
 
       {result && (
-        <div className="success">
-          <h3>✅ Post Created Successfully!</h3>
-          <div className="result-card">
-            <p><strong>ID:</strong> {result.id}</p>
-            <p><strong>Title:</strong> {result.title}</p>
-            <p><strong>Content:</strong> {result.body}</p>
-            <p><strong>User ID:</strong> {result.userId}</p>
-          </div>
-        </div>
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>✅ Post Created</Text>
+          <Text style={styles.resultId}>ID: {result.id}</Text>
+          <Text style={styles.resultTitleText}>Title: {result.title}</Text>
+          <Text style={styles.resultBody}>Body: {result.body}</Text>
+        </View>
       )}
-    </div>
+    </View>
   );
 }
 
-// Example 3: Error Handling Patterns
+// Example 3: Error Handling and Retry Logic
 function ErrorHandlingExample() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [lastFetchTime, setLastFetchTime] = useState(null);
 
-  const fetchDataWithRetry = async (retries = 3) => {
+  const fetchDataWithRetry = async (isRetry = false) => {
     try {
       setLoading(true);
       setError(null);
       
-      // Simulate different error scenarios
-      const randomError = Math.random();
-      
-      if (randomError < 0.3) {
-        // Simulate network error
-        throw new Error('Network connection failed');
-      } else if (randomError < 0.6) {
-        // Simulate server error
-        throw new Error('Server error (500)');
+      if (isRetry) {
+        setRetryCount(prev => prev + 1);
+        // Add delay for retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate network issues randomly
+      const shouldFail = Math.random() < 0.3; // 30% chance of failure
+      
+      if (shouldFail) {
+        throw new Error('Network request failed');
+      }
       
       const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
       
@@ -242,188 +269,190 @@ function ErrorHandlingExample() {
       const result = await response.json();
       setData(result);
       setRetryCount(0);
-      
+      setLastFetchTime(new Date().toLocaleTimeString());
     } catch (err) {
       setError(err.message);
-      
-      if (retries > 0) {
-        setRetryCount(prev => prev + 1);
-        setTimeout(() => {
-          fetchDataWithRetry(retries - 1);
-        }, 1000);
-      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRetry = () => {
+  const retry = () => {
+    if (retryCount < 3) {
+      fetchDataWithRetry(true);
+    } else {
+      Alert.alert('Max Retries', 'Maximum retry attempts reached. Please try again later.');
+    }
+  };
+
+  const resetAndFetch = () => {
+    setRetryCount(0);
+    setError(null);
     fetchDataWithRetry();
   };
 
   return (
-    <div className="error-handling-example">
-      <h2>🛡️ Error Handling Patterns</h2>
+    <View style={styles.container}>
+      <Text style={styles.title}>🛡️ Error Handling & Retry</Text>
       
-      <div className="error-controls">
-        <button onClick={() => fetchDataWithRetry()} disabled={loading}>
-          {loading ? 'Loading...' : '🔄 Fetch Data (with errors)'}
-        </button>
-        <button onClick={handleRetry} disabled={loading}>
-          🔁 Manual Retry
-        </button>
-      </div>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => fetchDataWithRetry()} disabled={loading}>
+          <Text style={styles.buttonText}>
+            {loading ? 'Loading...' : '🔄 Fetch Data'}
+          </Text>
+        </TouchableOpacity>
+        
+        {error && retryCount < 3 && (
+          <TouchableOpacity style={styles.retryButton} onPress={retry} disabled={loading}>
+            <Text style={styles.buttonText}>
+              🔄 Retry ({retryCount}/3)
+            </Text>
+          </TouchableOpacity>
+        )}
+        
+        {retryCount >= 3 && (
+          <TouchableOpacity style={styles.resetButton} onPress={resetAndFetch} disabled={loading}>
+            <Text style={styles.buttonText}>
+              🔄 Reset & Fetch
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
       {loading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading data... {retryCount > 0 && `(Retry ${retryCount})`}</p>
-        </div>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007bff" />
+          <Text style={styles.loadingText}>
+            Loading data... {retryCount > 0 && `(Retry ${retryCount})`}
+          </Text>
+        </View>
       )}
 
       {error && (
-        <div className="error">
-          <h3>❌ Error Occurred</h3>
-          <p><strong>Error:</strong> {error}</p>
-          <p><strong>Retry Count:</strong> {retryCount}</p>
-          <button onClick={handleRetry}>Try Again</button>
-        </div>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>❌ Error</Text>
+          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.retryInfo}>
+            Retry attempts: {retryCount}/3
+          </Text>
+        </View>
       )}
 
       {data && (
-        <div className="success">
-          <h3>✅ Data Loaded Successfully!</h3>
-          <div className="data-card">
-            <p><strong>ID:</strong> {data.id}</p>
-            <p><strong>Title:</strong> {data.title}</p>
-            <p><strong>Content:</strong> {data.body}</p>
-            <p><strong>User ID:</strong> {data.userId}</p>
-          </div>
-        </div>
+        <View style={styles.dataContainer}>
+          <Text style={styles.dataTitle}>✅ Data Loaded Successfully</Text>
+          <Text style={styles.dataId}>ID: {data.id}</Text>
+          <Text style={styles.dataTitleText}>Title: {data.title}</Text>
+          <Text style={styles.dataBody}>Body: {data.body}</Text>
+          {lastFetchTime && (
+            <Text style={styles.fetchTime}>Last fetched: {lastFetchTime}</Text>
+          )}
+        </View>
       )}
-
-      <div className="error-info">
-        <h4>Error Handling Strategies Demonstrated:</h4>
-        <ul>
-          <li><strong>Try-Catch Blocks:</strong> Proper error catching</li>
-          <li><strong>HTTP Status Checking:</strong> Checking response.ok</li>
-          <li><strong>Retry Logic:</strong> Automatic retry with backoff</li>
-          <li><strong>User Feedback:</strong> Clear error messages</li>
-          <li><strong>Loading States:</strong> Visual feedback during operations</li>
-        </ul>
-      </div>
-    </div>
+    </View>
   );
 }
 
-// Example 4: Loading States and UX
+// Example 4: Loading States and Pull-to-Refresh
 function LoadingStatesExample() {
-  const [users, setUsers] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchUsers = async () => {
+  const fetchData = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       
       // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=10');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json();
-      setUsers(data);
+      const result = await response.json();
+      setData(result);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleRefresh = () => {
+    fetchData(true);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text style={styles.loadingText}>Loading posts...</Text>
+      </View>
+    );
+  }
 
   return (
-    <div className="loading-states-example">
-      <h2>⏳ Loading States & UX</h2>
+    <View style={styles.container}>
+      <Text style={styles.title}>🔄 Loading States & Refresh</Text>
       
-      <div className="loading-controls">
-        <button onClick={fetchUsers} disabled={loading}>
-          {loading ? 'Loading...' : '🔄 Load Users'}
-        </button>
-        
-        {users.length > 0 && (
-          <div className="search-controls">
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      <ScrollView
+        style={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={['#007bff']} // Android
+            tintColor="#007bff" // iOS
+            title="Pull to refresh"
+            titleColor="#666"
+          />
+        }
+      >
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorTitle}>Error</Text>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={() => fetchData()}>
+              <Text style={styles.buttonText}>🔄 Try Again</Text>
+            </TouchableOpacity>
+          </View>
         )}
-      </div>
 
-      {loading && (
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Loading users...</p>
-            <div className="progress-bar">
-              <div className="progress-fill"></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="error-container">
-          <div className="error-icon">❌</div>
-          <h3>Failed to load users</h3>
-          <p>{error}</p>
-          <button onClick={fetchUsers}>Try Again</button>
-        </div>
-      )}
-
-      {!loading && !error && users.length > 0 && (
-        <div className="users-container">
-          <div className="users-header">
-            <h3>Users ({filteredUsers.length})</h3>
-          </div>
-          
-          <div className="users-list">
-            {filteredUsers.map(user => (
-              <div key={user.id} className="user-item">
-                <div className="user-avatar">
-                  {user.name.charAt(0)}
-                </div>
-                <div className="user-info">
-                  <h4>{user.name}</h4>
-                  <p>{user.email}</p>
-                  <p>{user.phone}</p>
-                </div>
-              </div>
+        {data.length > 0 && (
+          <View style={styles.postsContainer}>
+            <Text style={styles.postsTitle}>Posts ({data.length})</Text>
+            {data.map(post => (
+              <View key={post.id} style={styles.postItem}>
+                <Text style={styles.postId}>#{post.id}</Text>
+                <Text style={styles.postTitle}>{post.title}</Text>
+                <Text style={styles.postBody}>{post.body}</Text>
+              </View>
             ))}
-          </div>
-        </div>
-      )}
+          </View>
+        )}
 
-      {!loading && !error && users.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">👥</div>
-          <h3>No users loaded</h3>
-          <p>Click the button above to load users</p>
-        </div>
-      )}
-    </div>
+        {refreshing && (
+          <View style={styles.refreshIndicator}>
+            <ActivityIndicator size="small" color="#007bff" />
+            <Text style={styles.refreshText}>Refreshing...</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -431,57 +460,376 @@ function LoadingStatesExample() {
 function FetchApiExample() {
   const [currentExample, setCurrentExample] = useState('basic');
 
+  const renderExample = () => {
+    switch (currentExample) {
+      case 'basic':
+        return <BasicFetchExample />;
+      case 'post':
+        return <PostRequestExample />;
+      case 'error':
+        return <ErrorHandlingExample />;
+      case 'loading':
+        return <LoadingStatesExample />;
+      default:
+        return <BasicFetchExample />;
+    }
+  };
+
   return (
-    <div className="fetch-api-example">
-      <h1>🌐 Fetch API Examples</h1>
+    <View style={styles.container}>
+      <Text style={styles.title}>🌐 Fetch API Examples</Text>
       
-      <div className="example-selector">
-        <button 
-          onClick={() => setCurrentExample('basic')}
-          className={currentExample === 'basic' ? 'active' : ''}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, currentExample === 'basic' && styles.activeTab]}
+          onPress={() => setCurrentExample('basic')}
         >
-          Basic Fetch
-        </button>
-        <button 
-          onClick={() => setCurrentExample('post')}
-          className={currentExample === 'post' ? 'active' : ''}
+          <Text style={[styles.tabText, currentExample === 'basic' && styles.activeTabText]}>
+            Basic
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, currentExample === 'post' && styles.activeTab]}
+          onPress={() => setCurrentExample('post')}
         >
-          POST Request
-        </button>
-        <button 
-          onClick={() => setCurrentExample('error')}
-          className={currentExample === 'error' ? 'active' : ''}
+          <Text style={[styles.tabText, currentExample === 'post' && styles.activeTabText]}>
+            POST
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, currentExample === 'error' && styles.activeTab]}
+          onPress={() => setCurrentExample('error')}
         >
-          Error Handling
-        </button>
-        <button 
-          onClick={() => setCurrentExample('loading')}
-          className={currentExample === 'loading' ? 'active' : ''}
+          <Text style={[styles.tabText, currentExample === 'error' && styles.activeTabText]}>
+            Error
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, currentExample === 'loading' && styles.activeTab]}
+          onPress={() => setCurrentExample('loading')}
         >
-          Loading States
-        </button>
-      </div>
+          <Text style={[styles.tabText, currentExample === 'loading' && styles.activeTabText]}>
+            Loading
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-      <div className="example-content">
-        {currentExample === 'basic' && <BasicFetchExample />}
-        {currentExample === 'post' && <PostRequestExample />}
-        {currentExample === 'error' && <ErrorHandlingExample />}
-        {currentExample === 'loading' && <LoadingStatesExample />}
-      </div>
-
-      <div className="explanation">
-        <h3>Key Concepts Demonstrated:</h3>
-        <ul>
-          <li><strong>Fetch API:</strong> Modern way to make HTTP requests</li>
-          <li><strong>Async/Await:</strong> Clean asynchronous code</li>
-          <li><strong>Error Handling:</strong> Proper error catching and user feedback</li>
-          <li><strong>Loading States:</strong> Better user experience during API calls</li>
-          <li><strong>HTTP Methods:</strong> GET, POST requests with proper headers</li>
-          <li><strong>Response Handling:</strong> Checking status and parsing JSON</li>
-        </ul>
-      </div>
-    </div>
+      <View style={styles.content}>
+        {renderExample()}
+      </View>
+      
+      <View style={styles.infoSection}>
+        <Text style={styles.infoTitle}>Fetch API Concepts:</Text>
+        <Text style={styles.infoText}>
+          • GET requests for data fetching
+          {'\n'}• POST requests with JSON data
+          {'\n'}• Error handling and retry logic
+          {'\n'}• Loading states and user feedback
+          {'\n'}• Pull-to-refresh functionality
+        </Text>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    paddingTop: Platform.OS === 'ios' ? 44 : 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333',
+    paddingHorizontal: 20,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    padding: 5,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  activeTab: {
+    backgroundColor: '#007bff',
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+  },
+  activeTabText: {
+    color: 'white',
+  },
+  content: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  errorButton: {
+    backgroundColor: '#dc3545',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  retryButton: {
+    backgroundColor: '#ffc107',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  resetButton: {
+    backgroundColor: '#28a745',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  submitButton: {
+    backgroundColor: '#28a745',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#6c757d',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    backgroundColor: '#f8d7da',
+    padding: 15,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#721c24',
+    marginBottom: 5,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#721c24',
+  },
+  retryInfo: {
+    fontSize: 12,
+    color: '#721c24',
+    marginTop: 5,
+    fontStyle: 'italic',
+  },
+  dataContainer: {
+    backgroundColor: '#d4edda',
+    padding: 15,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  dataTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#155724',
+    marginBottom: 10,
+  },
+  dataId: {
+    fontSize: 14,
+    color: '#155724',
+    marginBottom: 5,
+  },
+  dataTitleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#155724',
+    marginBottom: 8,
+  },
+  dataBody: {
+    fontSize: 14,
+    color: '#155724',
+    lineHeight: 20,
+  },
+  fetchTime: {
+    fontSize: 12,
+    color: '#155724',
+    marginTop: 5,
+    fontStyle: 'italic',
+  },
+  formContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: 'white',
+  },
+  textArea: {
+    height: 100,
+  },
+  resultContainer: {
+    backgroundColor: '#d1ecf1',
+    padding: 15,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  resultTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0c5460',
+    marginBottom: 10,
+  },
+  resultId: {
+    fontSize: 14,
+    color: '#0c5460',
+    marginBottom: 5,
+  },
+  resultTitleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0c5460',
+    marginBottom: 8,
+  },
+  resultBody: {
+    fontSize: 14,
+    color: '#0c5460',
+    lineHeight: 20,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  postsContainer: {
+    paddingHorizontal: 20,
+  },
+  postsTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 15,
+  },
+  postItem: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  postId: {
+    fontSize: 12,
+    color: '#007bff',
+    fontWeight: '600',
+    marginBottom: 5,
+  },
+  postTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  postBody: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  refreshIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  refreshText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#666',
+  },
+  infoSection: {
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 15,
+    borderRadius: 10,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 10,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+});
 
 export default FetchApiExample;
