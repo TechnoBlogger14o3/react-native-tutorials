@@ -1,20 +1,21 @@
 # 📱 React Native Tutorial Series
 
-A complete hands-on React Native roadmap from basics to advanced mobile development, each course as its own sub-repository with concepts, examples, and mobile projects.
+A complete hands-on React Native roadmap from fundamentals to advanced mobile development, each course as its own sub-repository with concepts, examples, and mobile projects.
 
 ## 🎯 Learning Goals
 
-This series will take you from a React Native beginner to an advanced mobile developer capable of building production-ready iOS and Android applications. Each course builds upon the previous one, ensuring a solid foundation while introducing new mobile-specific concepts progressively.
+This series will take you from a complete beginner to an advanced mobile developer capable of building production-ready iOS and Android applications. Each course builds upon the previous one, ensuring a solid foundation while introducing new mobile-specific concepts progressively.
 
 ## 📚 Course Overview
 
 | Course | Status | Focus | Duration | Project |
 |--------|--------|-------|----------|---------|
+| 🏗️ Course 0: Making Base Strong | Ready | React Native fundamentals & setup | 1-2 weeks | Setup & First App |
 | ✅ Course 1: React Native Basics | Ready | Core React Native concepts | 2-3 weeks | Calculator & Counter Apps |
-| ⏳ Course 2: Components & Navigation | Ready | Reusable components & React Navigation | 3-4 weeks | Multi-Screen News App |
-| 🔒 Course 3: API Integration | Ready | External data & async programming | 3-4 weeks | Weather & Movie Search Apps |
-| 🧠 Course 4: Advanced State Management | Ready | State management & AsyncStorage | 4-5 weeks | E-commerce Shopping Cart |
-| 🚀 Course 5: Offline & Optimization | Ready | Performance & offline capabilities | 3-4 weeks | Offline-capable Notes App |
+| ✅ Course 2: Components & Navigation | Ready | Reusable components & React Navigation | 3-4 weeks | Multi-Screen News App |
+| ✅ Course 3: API Integration | Ready | External data & async programming | 3-4 weeks | Weather & Movie Search Apps |
+| ✅ Course 4: Advanced State Management | Ready | State management & AsyncStorage | 4-5 weeks | E-commerce Shopping Cart |
+| ✅ Course 5: Offline & Optimization | Ready | Performance & offline capabilities | 3-4 weeks | Offline-capable Notes App |
 
 ## 🛠️ Prerequisites
 
@@ -73,9 +74,9 @@ CourseX-Topic/
    cd react-native-tutorial-series
    ```
 
-2. Navigate to Course 1:
+2. Navigate to Course 0:
    ```bash
-   cd Course1-React-Native-Basics
+   cd Course-0-Making-Base-Strong
    ```
 
 3. Follow the README instructions to begin your React Native journey!
@@ -83,6 +84,18 @@ CourseX-Topic/
 ## 📝 Learning Checklist
 
 Track your progress with this checklist:
+
+- [ ] **Course 0: Making Base Strong**
+  - [ ] Understand what React Native is and its benefits
+  - [ ] Know the difference between React Native and Expo
+  - [ ] Set up development environment for both platforms
+  - [ ] Create a React Native project using CLI
+  - [ ] Create an Expo project
+  - [ ] Run projects on Android emulator
+  - [ ] Run projects on iOS simulator
+  - [ ] Understand project structure
+  - [ ] Learn essential commands
+  - [ ] Set up debugging tools
 
 - [ ] **Course 1: React Native Basics**
   - [ ] Understand React Native components and styling
