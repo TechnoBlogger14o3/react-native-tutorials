@@ -1,75 +1,82 @@
-# Course 2: Components & State Management
+# Course 2: Components & Navigation
 
 ## 🎯 Goal
 
-Dive deeper into reusable components and state patterns. Learn component composition, React Router for navigation, and advanced state management techniques.
+Master component composition patterns and React Navigation for building multi-screen mobile applications. Learn to create reusable components, manage state across screens, and implement mobile navigation patterns.
 
 ## 📚 What You'll Learn
 
-- Component hierarchy & composition
-- Lifting state up
-- useEffect & useState hooks
-- React Router basics (multi-screen navigation)
-- Form handling
-- Building a multi-page news application
+- Component composition for mobile apps
+- State lifting patterns in React Native
+- React Navigation (Stack, Tab, Drawer)
+- useEffect hooks for mobile data fetching
+- Form handling in React Native
+- Building multi-screen mobile applications
 
 ---
 
-## 🧩 Component Hierarchy & Composition
+## 🧩 Component Composition for Mobile
 
-### Understanding Component Composition
+### Understanding Mobile Component Composition
 
-Component composition is the practice of building complex UIs by combining smaller, reusable components. This creates a hierarchy where parent components manage state and pass data down to child components.
+Component composition in React Native follows the same principles as React web, but with mobile-specific considerations like touch interactions, screen sizes, and platform differences.
 
 ```jsx
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
 // Parent component that composes smaller components
 function NewsApp() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="news-app">
+    <View style={styles.container}>
       <Header />
       <Navigation />
       <ArticleList articles={articles} loading={loading} />
       <Footer />
-    </div>
+    </View>
   );
 }
 
 // Child components that are composed together
 function Header() {
   return (
-    <header className="app-header">
-      <h1>News App</h1>
+    <View style={styles.header}>
+      <Text style={styles.title}>News App</Text>
       <SearchBar />
-    </header>
+    </View>
   );
 }
 ```
 
-### Component Hierarchy Best Practices
+### Mobile Component Hierarchy Best Practices
 
-1. **Single Responsibility**: Each component should have one clear purpose
-2. **Props Down, Events Up**: Data flows down, events bubble up
-3. **Composition over Inheritance**: Build complex components by combining simple ones
-4. **Container vs Presentational**: Separate logic from presentation
+1. **Touch-Friendly Components**: Use TouchableOpacity, TouchableHighlight, or Pressable
+2. **Responsive Layouts**: Use Flexbox for mobile layouts
+3. **Platform-Specific Rendering**: Handle iOS/Android differences
+4. **Performance**: Optimize for mobile performance with FlatList
+5. **Accessibility**: Include accessibility props for screen readers
 
 ---
 
-## 🔄 Lifting State Up
+## 🔄 State Lifting in React Native
 
 When multiple components need to share the same state, lift the state up to their common parent component.
 
 ### Example: Shared Counter State
 
 ```jsx
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
 // Parent component manages shared state
 function CounterApp() {
   const [count, setCount] = useState(0);
 
   return (
-    <div>
+    <View style={styles.container}>
       <CounterDisplay count={count} />
       <CounterControls 
         count={count} 
@@ -77,43 +84,55 @@ function CounterApp() {
         onDecrement={() => setCount(count - 1)}
         onReset={() => setCount(0)}
       />
-    </div>
+    </View>
   );
 }
 
 // Child components receive state and handlers as props
 function CounterDisplay({ count }) {
-  return <div className="count-display">Count: {count}</div>;
+  return (
+    <View style={styles.displayContainer}>
+      <Text style={styles.countText}>Count: {count}</Text>
+    </View>
+  );
 }
 
 function CounterControls({ onIncrement, onDecrement, onReset }) {
   return (
-    <div className="controls">
-      <button onClick={onIncrement}>+</button>
-      <button onClick={onDecrement}>-</button>
-      <button onClick={onReset}>Reset</button>
-    </div>
+    <View style={styles.controlsContainer}>
+      <TouchableOpacity style={styles.button} onPress={onIncrement}>
+        <Text style={styles.buttonText}>+</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={onDecrement}>
+        <Text style={styles.buttonText}>-</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={onReset}>
+        <Text style={styles.buttonText}>Reset</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 ```
 
-### When to Lift State Up
+### When to Lift State Up in Mobile Apps
 
-- Multiple components need the same data
-- Components need to communicate with each other
-- You need to synchronize state across components
+- Multiple screens need the same data
+- Components need to communicate across navigation
+- You need to synchronize state across different screens
 - State changes should trigger updates in multiple places
+- User preferences need to persist across screens
 
 ---
 
-## 🎣 useEffect & useState Hooks
+## 🎣 useEffect for Mobile Data Fetching
 
-### useEffect Hook
+### useEffect Hook in React Native
 
-The `useEffect` hook lets you perform side effects in functional components. It's equivalent to `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount` combined.
+The `useEffect` hook works the same way in React Native as in React web, but with mobile-specific considerations like network connectivity and app lifecycle.
 
 ```jsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
 function UserProfile({ userId }) {
   const [user, setUser] = useState(null);
@@ -125,7 +144,7 @@ function UserProfile({ userId }) {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/users/${userId}`);
+        const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`);
         const userData = await response.json();
         setUser(userData);
       } catch (err) {
@@ -138,7 +157,7 @@ function UserProfile({ userId }) {
     fetchUser();
   }, [userId]); // Dependency array
 
-  // Cleanup effect
+  // Cleanup effect for timers
   useEffect(() => {
     const timer = setInterval(() => {
       console.log('Timer tick');
@@ -149,162 +168,204 @@ function UserProfile({ userId }) {
     };
   }, []); // Empty dependency array = run once
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!user) return <div>User not found</div>;
+  if (loading) return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#007bff" />
+      <Text style={styles.loadingText}>Loading...</Text>
+    </View>
+  );
+  
+  if (error) return (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorText}>Error: {error}</Text>
+    </View>
+  );
+  
+  if (!user) return (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorText}>User not found</Text>
+    </View>
+  );
 
   return (
-    <div className="user-profile">
-      <h2>{user.name}</h2>
-      <p>{user.email}</p>
-    </div>
+    <View style={styles.userProfile}>
+      <Text style={styles.userName}>{user.name}</Text>
+      <Text style={styles.userEmail}>{user.email}</Text>
+    </View>
   );
 }
 ```
 
-### useEffect Patterns
+### Mobile-Specific useEffect Patterns
 
-1. **Data Fetching**: Load data when component mounts
-2. **Subscriptions**: Set up and clean up event listeners
-3. **Timers**: Create and clear intervals/timeouts
-4. **DOM Manipulation**: Direct DOM access when needed
-
-### useState Advanced Patterns
-
-```jsx
-function TodoApp() {
-  // Multiple state variables
-  const [todos, setTodos] = useState([]);
-  const [filter, setFilter] = useState('all');
-  const [newTodo, setNewTodo] = useState('');
-
-  // State updater function
-  const addTodo = (text) => {
-    setTodos(prevTodos => [
-      ...prevTodos,
-      { id: Date.now(), text, completed: false }
-    ]);
-  };
-
-  // Complex state updates
-  const toggleTodo = (id) => {
-    setTodos(prevTodos =>
-      prevTodos.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
-  };
-
-  return (
-    <div>
-      <TodoForm onAddTodo={addTodo} />
-      <TodoFilter filter={filter} onFilterChange={setFilter} />
-      <TodoList todos={todos} onToggleTodo={toggleTodo} />
-    </div>
-  );
-}
-```
+1. **Network State Monitoring**: Track connectivity changes
+2. **App State Changes**: Handle app backgrounding/foregrounding
+3. **Location Services**: Start/stop location tracking
+4. **Push Notifications**: Set up notification listeners
+5. **Biometric Authentication**: Handle authentication state
 
 ---
 
-## 🧭 React Router Basics
+## 🧭 React Navigation
 
-React Router enables client-side routing in React applications, allowing you to create single-page applications with multiple views.
+React Navigation is the standard navigation library for React Native applications, providing stack, tab, and drawer navigation patterns.
 
-### Basic Setup
+### Installation
+
+```bash
+npm install @react-navigation/native @react-navigation/stack @react-navigation/bottom-tabs
+npx pod-install ios # For iOS
+```
+
+### Stack Navigation Setup
 
 ```jsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+const Stack = createStackNavigator();
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="app">
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
-        </nav>
-        
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen}
+          options={{ title: 'News App' }}
+        />
+        <Stack.Screen 
+          name="ArticleDetail" 
+          component={ArticleDetailScreen}
+          options={{ title: 'Article' }}
+        />
+        <Stack.Screen 
+          name="Search" 
+          component={SearchScreen}
+          options={{ title: 'Search' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+// Screen components
+function HomeScreen({ navigation }) {
+  return (
+    <View style={styles.container}>
+      <Text>Home Screen</Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('ArticleDetail', { articleId: 1 })}
+      >
+        <Text>Go to Article</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function ArticleDetailScreen({ route, navigation }) {
+  const { articleId } = route.params;
+  
+  return (
+    <View style={styles.container}>
+      <Text>Article ID: {articleId}</Text>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Text>Go Back</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 ```
 
-### Navigation Components
+### Tab Navigation
 
 ```jsx
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-function NewsArticle() {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const location = useLocation();
+const Tab = createBottomTabNavigator();
 
-  const handleBack = () => {
-    navigate(-1); // Go back to previous page
-  };
-
-  const handleHome = () => {
-    navigate('/'); // Navigate to home
-  };
-
+function TabNavigator() {
   return (
-    <div>
-      <button onClick={handleBack}>← Back</button>
-      <button onClick={handleHome}>🏠 Home</button>
-      <h1>Article {id}</h1>
-      <p>Current path: {location.pathname}</p>
-    </div>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: '#007bff',
+        tabBarInactiveTintColor: '#999',
+      }}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>🏠</Text>
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="Search" 
+        component={SearchScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>🔍</Text>
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>👤</Text>
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 ```
 
-### Nested Routes
+### Navigation Hooks
 
 ```jsx
-function NewsApp() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="news" element={<NewsList />} />
-          <Route path="news/:id" element={<NewsArticle />} />
-          <Route path="about" element={<About />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
-}
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 
-function Layout() {
+function NewsScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      // Fetch fresh data when screen is focused
+      fetchNewsData();
+    }, [])
+  );
+
+  const handleArticlePress = (articleId) => {
+    navigation.navigate('ArticleDetail', { articleId });
+  };
+
   return (
-    <div>
-      <Header />
-      <Outlet /> {/* Child routes render here */}
-      <Footer />
-    </div>
+    <View>
+      {/* Screen content */}
+    </View>
   );
 }
 ```
 
 ---
 
-## 📝 Form Handling
+## 📝 Form Handling in React Native
 
-### Controlled Components
+### Controlled Components in React Native
 
-Controlled components have their form data controlled by React state.
+React Native forms use TextInput components controlled by React state.
 
 ```jsx
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Switch, StyleSheet } from 'react-native';
+
 function ContactForm() {
   const [formData, setFormData] = useState({
     name: '',
@@ -316,16 +377,15 @@ function ContactForm() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [field]: value
     }));
     
     // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -349,10 +409,9 @@ function ContactForm() {
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     const validationErrors = validateForm();
+    
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -364,163 +423,198 @@ function ContactForm() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       console.log('Form submitted:', formData);
-      alert('Form submitted successfully!');
+      Alert.alert('Success', 'Form submitted successfully!');
       
       // Reset form
       setFormData({ name: '', email: '', message: '', newsletter: false });
       setErrors({});
     } catch (error) {
       console.error('Submission error:', error);
+      Alert.alert('Error', 'Failed to submit form');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="contact-form">
-      <div className="form-group">
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
+    <ScrollView style={styles.container}>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Name:</Text>
+        <TextInput
+          style={[styles.input, errors.name && styles.inputError]}
           value={formData.name}
-          onChange={handleChange}
-          className={errors.name ? 'error' : ''}
+          onChangeText={(text) => handleInputChange('name', text)}
+          placeholder="Enter your name"
+          placeholderTextColor="#999"
         />
-        {errors.name && <span className="error-message">{errors.name}</span>}
-      </div>
+        {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+      </View>
 
-      <div className="form-group">
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Email:</Text>
+        <TextInput
+          style={[styles.input, errors.email && styles.inputError]}
           value={formData.email}
-          onChange={handleChange}
-          className={errors.email ? 'error' : ''}
+          onChangeText={(text) => handleInputChange('email', text)}
+          placeholder="Enter your email"
+          placeholderTextColor="#999"
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
-        {errors.email && <span className="error-message">{errors.email}</span>}
-      </div>
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      </View>
 
-      <div className="form-group">
-        <label htmlFor="message">Message:</label>
-        <textarea
-          id="message"
-          name="message"
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Message:</Text>
+        <TextInput
+          style={[styles.textArea, errors.message && styles.inputError]}
           value={formData.message}
-          onChange={handleChange}
-          className={errors.message ? 'error' : ''}
+          onChangeText={(text) => handleInputChange('message', text)}
+          placeholder="Enter your message"
+          placeholderTextColor="#999"
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
         />
-        {errors.message && <span className="error-message">{errors.message}</span>}
-      </div>
+        {errors.message && <Text style={styles.errorText}>{errors.message}</Text>}
+      </View>
 
-      <div className="form-group">
-        <label>
-          <input
-            type="checkbox"
-            name="newsletter"
-            checked={formData.newsletter}
-            onChange={handleChange}
-          />
-          Subscribe to newsletter
-        </label>
-      </div>
+      <View style={styles.switchGroup}>
+        <Text style={styles.label}>Subscribe to newsletter:</Text>
+        <Switch
+          value={formData.newsletter}
+          onValueChange={(value) => handleInputChange('newsletter', value)}
+          trackColor={{ false: '#767577', true: '#81b0ff' }}
+          thumbColor={formData.newsletter ? '#f5dd4b' : '#f4f3f4'}
+        />
+      </View>
 
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Submitting...' : 'Submit'}
-      </button>
-    </form>
+      <TouchableOpacity 
+        style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]} 
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+      >
+        <Text style={styles.submitButtonText}>
+          {isSubmitting ? 'Submitting...' : 'Submit'}
+        </Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 ```
 
-### Form Validation Patterns
+### Mobile Form Best Practices
 
-1. **Real-time validation**: Validate as user types
-2. **Submit validation**: Validate on form submission
-3. **Custom validation**: Create reusable validation functions
-4. **Error display**: Show clear error messages
+1. **Keyboard Handling**: Use appropriate keyboardType props
+2. **Input Validation**: Real-time validation with clear error messages
+3. **Accessibility**: Include accessibility labels and hints
+4. **Platform Differences**: Handle iOS/Android input differences
+5. **Performance**: Use ScrollView for long forms
 
 ---
 
 ## 🧩 Mini Tasks
 
-Complete these exercises to practice component composition and state management:
+Complete these exercises to practice React Native component composition and navigation:
 
-### Task 1: Component Composition
-Create a `UserDashboard` component that composes smaller components.
+### Task 1: Mobile Component Composition
+Create a `UserDashboard` component that composes smaller mobile components.
 
 **Requirements:**
 - Use `UserProfile`, `UserStats`, and `UserActions` components
 - Pass user data down through props
 - Handle user actions (edit profile, logout) with callbacks
+- Use TouchableOpacity for interactive elements
 
-### Task 2: State Lifting
-Build a `ShoppingCart` component with `CartItem` and `CartSummary` children.
+### Task 2: State Lifting with Navigation
+Build a `ShoppingCart` component with navigation between screens.
 
 **Requirements:**
 - Lift cart state up to parent component
-- Allow adding/removing items from child components
+- Allow adding/removing items from different screens
 - Update total price automatically
+- Use React Navigation for screen transitions
 
 ### Task 3: useEffect Data Fetching
 Create a `NewsList` component that fetches news articles.
 
 **Requirements:**
 - Use useEffect to fetch data on component mount
-- Handle loading and error states
-- Implement refresh functionality
+- Handle loading and error states with ActivityIndicator
+- Implement pull-to-refresh functionality
+- Handle network connectivity changes
 
-### Task 4: React Router Navigation
-Build a multi-page application with navigation.
+### Task 4: React Navigation Setup
+Build a multi-screen application with navigation.
 
 **Requirements:**
-- Create Home, About, and Contact pages
-- Implement navigation between pages
-- Use URL parameters for dynamic content
+- Create Home, News, and Profile screens
+- Implement stack navigation between screens
+- Use tab navigation for main sections
+- Pass data between screens using navigation params
 
 ---
 
-## 🚀 Project: Multi-Page News App
+## 🚀 Project: Multi-Screen News App
 
-Build a complete news application with multiple pages, routing, and external API integration.
+Build a complete news application with multiple screens, React Navigation, and external API integration.
 
 ### Features:
-- **Home Page**: Featured articles and categories
-- **News List**: Paginated list of all articles
-- **Article Detail**: Full article view with related articles
-- **Search**: Search functionality across articles
-- **Categories**: Filter articles by category
-- **Responsive Design**: Works on all device sizes
+- **Home Screen**: Featured articles and categories
+- **News List Screen**: Paginated list of all articles
+- **Article Detail Screen**: Full article view with related articles
+- **Search Screen**: Search functionality across articles
+- **Profile Screen**: User preferences and settings
+- **Tab Navigation**: Easy navigation between main sections
+- **Stack Navigation**: Deep linking to specific articles
 
 ### Technical Requirements:
-- Use React Router for navigation
+- Use React Navigation for all navigation
 - Implement component composition patterns
 - Use useEffect for data fetching
 - Handle loading and error states
 - Implement form handling for search
-- Use the News API (free tier available)
+- Use FlatList for performance
+- Handle platform differences (iOS/Android)
 
 ### API Integration:
 ```jsx
-// News API service
+// News API service for React Native
 const NEWS_API_KEY = 'your-api-key';
 const NEWS_API_URL = 'https://newsapi.org/v2';
 
 export const fetchNews = async (category = 'general', page = 1) => {
-  const response = await fetch(
-    `${NEWS_API_URL}/top-headlines?category=${category}&page=${page}&apiKey=${NEWS_API_KEY}`
-  );
-  return response.json();
+  try {
+    const response = await fetch(
+      `${NEWS_API_URL}/top-headlines?category=${category}&page=${page}&apiKey=${NEWS_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    throw error;
+  }
 };
 
 export const searchNews = async (query, page = 1) => {
-  const response = await fetch(
-    `${NEWS_API_URL}/everything?q=${query}&page=${page}&apiKey=${NEWS_API_KEY}`
-  );
-  return response.json();
+  try {
+    const response = await fetch(
+      `${NEWS_API_URL}/everything?q=${query}&page=${page}&apiKey=${NEWS_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error searching news:', error);
+    throw error;
+  }
 };
 ```
 
@@ -534,14 +628,19 @@ news-app/
 │   │   ├── ArticleCard/
 │   │   ├── ArticleList/
 │   │   └── SearchBar/
-│   ├── pages/
-│   │   ├── Home/
-│   │   ├── NewsList/
-│   │   ├── ArticleDetail/
-│   │   └── Search/
+│   ├── screens/
+│   │   ├── HomeScreen/
+│   │   ├── NewsListScreen/
+│   │   ├── ArticleDetailScreen/
+│   │   ├── SearchScreen/
+│   │   └── ProfileScreen/
+│   ├── navigation/
+│   │   ├── AppNavigator.js
+│   │   ├── StackNavigator.js
+│   │   └── TabNavigator.js
 │   ├── services/
 │   │   └── newsApi.js
-│   └── App.jsx
+│   └── App.js
 ```
 
 ---
@@ -552,32 +651,32 @@ Congratulations! You've completed Course 2. Here's what to focus on next:
 
 ### Immediate Next Steps:
 1. **Complete the News App project** - Apply all concepts learned
-2. **Experiment with React Router** - Try nested routes and protected routes
-3. **Practice component composition** - Build reusable component libraries
+2. **Experiment with React Navigation** - Try nested navigators and deep linking
+3. **Practice mobile component composition** - Build reusable mobile component libraries
 
 ### Prepare for Course 3:
-- Learn about async/await and Promises
-- Understand REST API concepts
-- Practice error handling patterns
-- Learn about loading states and UX
+- Learn about async/await and Promises in mobile context
+- Understand REST API concepts for mobile apps
+- Practice error handling patterns for mobile
+- Learn about loading states and mobile UX
 
 ### Additional Resources:
-- [React Router Documentation](https://reactrouter.com/)
-- [React Hooks Guide](https://react.dev/reference/react)
-- [Component Composition Patterns](https://reactpatterns.com/)
-- [Form Handling Best Practices](https://react.dev/reference/react-dom/components/form)
+- [React Navigation Documentation](https://reactnavigation.org/)
+- [React Native Hooks Guide](https://react.dev/reference/react)
+- [Mobile Component Patterns](https://reactnative.dev/docs/components-and-apis)
+- [Form Handling in React Native](https://reactnative.dev/docs/textinput)
 
 ### Key Takeaways:
-- ✅ Component composition creates maintainable code
-- ✅ Lifting state up enables component communication
-- ✅ useEffect handles side effects and data fetching
-- ✅ React Router enables single-page application navigation
-- ✅ Controlled components provide better form control
+- ✅ Component composition creates maintainable mobile code
+- ✅ Lifting state up enables component communication across screens
+- ✅ useEffect handles side effects and mobile data fetching
+- ✅ React Navigation enables native mobile navigation patterns
+- ✅ Controlled components provide better mobile form control
 
 **Ready for Course 3?** 🚀
 
-Move on to **Course 3: API Integration & Asynchronous Programming** to learn how to work with external data sources and handle asynchronous operations!
+Move on to **Course 3: API Integration & Asynchronous Programming** to learn how to work with external data sources and handle asynchronous operations in mobile applications!
 
 ---
 
-*Happy coding! Remember, good component design is the foundation of scalable React applications.*
+*Happy mobile coding! Remember, good component design and navigation patterns are the foundation of scalable React Native applications.*
