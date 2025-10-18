@@ -1,19 +1,19 @@
-# 🚀 React Tutorial Series
+# 📱 React Native Tutorial Series
 
-A complete hands-on React roadmap from basics to advanced topics, each course as its own sub-repository with concepts, examples, and a final project.
+A complete hands-on React Native roadmap from basics to advanced mobile development, each course as its own sub-repository with concepts, examples, and mobile projects.
 
 ## 🎯 Learning Goals
 
-This series will take you from a React beginner to an advanced developer capable of building production-ready applications. Each course builds upon the previous one, ensuring a solid foundation while introducing new concepts progressively.
+This series will take you from a React Native beginner to an advanced mobile developer capable of building production-ready iOS and Android applications. Each course builds upon the previous one, ensuring a solid foundation while introducing new mobile-specific concepts progressively.
 
 ## 📚 Course Overview
 
 | Course | Status | Focus | Duration | Project |
 |--------|--------|-------|----------|---------|
-| ✅ Course 1: React Basics | Ready | Core React concepts | 2-3 weeks | Calculator & Counter Apps |
-| ⏳ Course 2: Components & State Management | Ready | Reusable components & state patterns | 3-4 weeks | Multi-Page News App |
+| ✅ Course 1: React Native Basics | Ready | Core React Native concepts | 2-3 weeks | Calculator & Counter Apps |
+| ⏳ Course 2: Components & Navigation | Ready | Reusable components & React Navigation | 3-4 weeks | Multi-Screen News App |
 | 🔒 Course 3: API Integration | Ready | External data & async programming | 3-4 weeks | Weather & Movie Search Apps |
-| 🧠 Course 4: Advanced State Management | Ready | State management libraries | 4-5 weeks | E-commerce Shopping Cart |
+| 🧠 Course 4: Advanced State Management | Ready | State management & AsyncStorage | 4-5 weeks | E-commerce Shopping Cart |
 | 🚀 Course 5: Offline & Optimization | Ready | Performance & offline capabilities | 3-4 weeks | Offline-capable Notes App |
 
 ## 🛠️ Prerequisites
@@ -22,29 +22,32 @@ Before starting this series, make sure you have:
 
 - **Node.js** (v16 or higher) - [Download here](https://nodejs.org/)
 - **npm** or **yarn** package manager
+- **React Native CLI** - `npm install -g @react-native-community/cli`
+- **Android Studio** (for Android development)
+- **Xcode** (for iOS development, macOS only)
 - **Basic JavaScript knowledge** (ES6+ features)
-- **HTML/CSS fundamentals**
 - **Code editor** (VS Code recommended)
 - **Git** for version control
 
 ## 🗺️ Learning Path
 
 ### Phase 1: Foundation (Courses 1-2)
-Build a solid understanding of React fundamentals and component architecture.
+Build a solid understanding of React Native fundamentals and mobile component architecture.
 
 ### Phase 2: Integration (Course 3)
-Learn to work with external APIs and handle asynchronous data.
+Learn to work with external APIs and handle asynchronous data in mobile apps.
 
 ### Phase 3: Advanced Patterns (Courses 4-5)
-Master state management and performance optimization.
+Master state management and performance optimization for mobile applications.
 
 ## 📖 How to Use This Series
 
 1. **Start with Course 1** - Don't skip the basics!
 2. **Complete all examples** - Hands-on practice is crucial
 3. **Build the projects** - Apply what you've learned
-4. **Move to next course** - Only after completing the current one
-5. **Review and practice** - Reinforce your learning
+4. **Test on devices** - Use both iOS and Android simulators
+5. **Move to next course** - Only after completing the current one
+6. **Review and practice** - Reinforce your learning
 
 ## 🎯 Course Structure
 
@@ -57,7 +60,7 @@ CourseX-Topic/
 │   ├── topic-1/
 │   ├── topic-2/
 │   └── ...
-└── project/           # Full React applications
+└── project/           # Full React Native applications
     ├── project-1/
     └── project-2/
 ```
@@ -66,37 +69,37 @@ CourseX-Topic/
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/react-tutorial-series.git
-   cd react-tutorial-series
+   git clone https://github.com/yourusername/react-native-tutorial-series.git
+   cd react-native-tutorial-series
    ```
 
 2. Navigate to Course 1:
    ```bash
-   cd Course1-React-Basics
+   cd Course1-React-Native-Basics
    ```
 
-3. Follow the README instructions to begin your React journey!
+3. Follow the README instructions to begin your React Native journey!
 
 ## 📝 Learning Checklist
 
 Track your progress with this checklist:
 
-- [ ] **Course 1: React Basics**
-  - [ ] Understand JSX and functional components
-  - [ ] Master props and state
-  - [ ] Handle events and conditional rendering
+- [ ] **Course 1: React Native Basics**
+  - [ ] Understand React Native components and styling
+  - [ ] Master props and state in mobile context
+  - [ ] Handle touch events and gestures
   - [ ] Build Calculator and Counter apps
   - [ ] Complete all mini tasks
 
-- [ ] **Course 2: Components & State Management**
-  - [ ] Learn component composition
-  - [ ] Master useEffect and useState
-  - [ ] Implement React Router
-  - [ ] Build Multi-Page News App
-  - [ ] Handle forms effectively
+- [ ] **Course 2: Components & Navigation**
+  - [ ] Learn component composition for mobile
+  - [ ] Master React Navigation
+  - [ ] Implement tab and stack navigation
+  - [ ] Build Multi-Screen News App
+  - [ ] Handle mobile-specific interactions
 
 - [ ] **Course 3: API Integration**
-  - [ ] Work with Fetch API and Axios
+  - [ ] Work with Fetch API in React Native
   - [ ] Handle async operations
   - [ ] Implement error and loading states
   - [ ] Build Weather and Movie Search apps
@@ -107,12 +110,12 @@ Track your progress with this checklist:
   - [ ] Implement Redux Toolkit
   - [ ] Explore Zustand
   - [ ] Build E-commerce Shopping Cart
-  - [ ] Persist state across sessions
+  - [ ] Persist state with AsyncStorage
 
 - [ ] **Course 5: Offline & Optimization**
-  - [ ] Implement service workers
+  - [ ] Implement offline capabilities
   - [ ] Use lazy loading and code splitting
-  - [ ] Optimize performance
+  - [ ] Optimize performance for mobile
   - [ ] Build Offline-capable Notes App
   - [ ] Master caching strategies
 
@@ -137,9 +140,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎉 Congratulations!
 
-You're about to embark on an exciting journey to master React! Remember, the key to learning React is consistent practice and building projects. Don't rush through the courses - take your time to understand each concept thoroughly.
+You're about to embark on an exciting journey to master React Native! Remember, the key to learning React Native is consistent practice, building projects, and testing on real devices.
 
-**Happy coding! 🚀**
+**Happy mobile coding! 📱**
 
 ---
 
