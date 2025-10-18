@@ -2,27 +2,28 @@
 
 ## 🎯 Goal
 
-Master state management libraries and patterns for large React applications. Learn Context API, Redux Toolkit, Zustand, and state persistence techniques.
+Master state management libraries and patterns for large React Native applications. Learn Context API, Redux Toolkit, Zustand, and AsyncStorage for mobile state persistence.
 
 ## 📚 What You'll Learn
 
-- Context API
-- Redux Toolkit
+- Context API for mobile apps
+- Redux Toolkit for React Native
 - Zustand (modern lightweight alternative)
+- AsyncStorage for mobile persistence
 - Middleware & dev tools
-- Persisting state (localStorage/sessionStorage)
 - Building an e-commerce shopping cart with persistent state
 
 ---
 
-## 🎯 Context API
+## 🎯 Context API for Mobile
 
-### Creating and Using Context
+### Creating and Using Context in React Native
 
 Context provides a way to pass data through the component tree without having to pass props down manually at every level.
 
 ```jsx
-import { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // Create context
 const CartContext = createContext();
@@ -105,13 +106,16 @@ function ProductCard({ product }) {
   const { addToCart } = useCart();
 
   return (
-    <div className="product-card">
-      <h3>{product.name}</h3>
-      <p>${product.price}</p>
-      <button onClick={() => addToCart(product)}>
-        Add to Cart
-      </button>
-    </div>
+    <View style={styles.productCard}>
+      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={styles.productPrice}>${product.price}</Text>
+      <TouchableOpacity 
+        style={styles.addButton} 
+        onPress={() => addToCart(product)}
+      >
+        <Text style={styles.addButtonText}>Add to Cart</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -119,25 +123,27 @@ function CartSummary() {
   const { cart, totalItems, totalPrice } = useCart();
 
   return (
-    <div className="cart-summary">
-      <h3>Cart ({totalItems} items)</h3>
-      <p>Total: ${totalPrice.toFixed(2)}</p>
-    </div>
+    <View style={styles.cartSummary}>
+      <Text style={styles.cartTitle}>Cart ({totalItems} items)</Text>
+      <Text style={styles.cartTotal}>Total: ${totalPrice.toFixed(2)}</Text>
+    </View>
   );
 }
 ```
 
 ---
 
-## 🏪 Redux Toolkit
+## 🏪 Redux Toolkit for React Native
 
 ### Modern Redux with Redux Toolkit
 
-Redux Toolkit simplifies Redux development with less boilerplate and better patterns.
+Redux Toolkit simplifies Redux development with less boilerplate and better patterns for mobile applications.
 
 ```jsx
-import { configureStore, createSlice } from '@reduxjs/toolkit';
+import React from 'react';
 import { Provider, useSelector, useDispatch } from 'react-redux';
+import { configureStore, createSlice } from '@reduxjs/toolkit';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
 // Create slice
 const cartSlice = createSlice({
@@ -205,11 +211,11 @@ export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlic
 function App() {
   return (
     <Provider store={store}>
-      <div className="app">
+      <View style={styles.app}>
         <Header />
         <ProductList />
         <CartSidebar />
-      </div>
+      </View>
     </Provider>
   );
 }
@@ -223,13 +229,13 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="product-card">
-      <h3>{product.name}</h3>
-      <p>${product.price}</p>
-      <button onClick={handleAddToCart}>
-        Add to Cart
-      </button>
-    </div>
+    <View style={styles.productCard}>
+      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={styles.productPrice}>${product.price}</Text>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
+        <Text style={styles.addButtonText}>Add to Cart</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -238,39 +244,52 @@ function CartSidebar() {
   const dispatch = useDispatch();
 
   return (
-    <div className="cart-sidebar">
-      <h3>Cart ({totalItems} items)</h3>
-      {items.map(item => (
-        <div key={item.id} className="cart-item">
-          <span>{item.name}</span>
-          <span>Qty: {item.quantity}</span>
-          <button onClick={() => dispatch(removeFromCart(item.id))}>
-            Remove
-          </button>
-        </div>
-      ))}
-      <p>Total: ${totalPrice.toFixed(2)}</p>
-      <button onClick={() => dispatch(clearCart())}>
-        Clear Cart
-      </button>
-    </div>
+    <View style={styles.cartSidebar}>
+      <Text style={styles.cartTitle}>Cart ({totalItems} items)</Text>
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.cartItem}>
+            <Text style={styles.cartItemName}>{item.name}</Text>
+            <Text style={styles.cartItemQty}>Qty: {item.quantity}</Text>
+            <TouchableOpacity 
+              style={styles.removeButton}
+              onPress={() => dispatch(removeFromCart(item.id))}
+            >
+              <Text style={styles.removeButtonText}>Remove</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+      <Text style={styles.cartTotal}>Total: ${totalPrice.toFixed(2)}</Text>
+      <TouchableOpacity 
+        style={styles.clearButton}
+        onPress={() => dispatch(clearCart())}
+      >
+        <Text style={styles.clearButtonText}>Clear Cart</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 ```
 
 ---
 
-## 🐻 Zustand
+## 🐻 Zustand for React Native
 
 ### Lightweight State Management
 
-Zustand is a small, fast, and scalable state management solution.
+Zustand is a small, fast, and scalable state management solution perfect for React Native applications.
 
 ```jsx
+import React from 'react';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
-// Create store
+// Create store with AsyncStorage persistence
 const useCartStore = create(
   persist(
     (set, get) => ({
@@ -339,7 +358,8 @@ const useCartStore = create(
       }
     }),
     {
-      name: 'cart-storage', // unique name for localStorage key
+      name: 'cart-storage', // unique name for AsyncStorage key
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );
@@ -349,13 +369,13 @@ function ProductCard({ product }) {
   const addToCart = useCartStore(state => state.addToCart);
 
   return (
-    <div className="product-card">
-      <h3>{product.name}</h3>
-      <p>${product.price}</p>
-      <button onClick={() => addToCart(product)}>
-        Add to Cart
-      </button>
-    </div>
+    <View style={styles.productCard}>
+      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={styles.productPrice}>${product.price}</Text>
+      <TouchableOpacity style={styles.addButton} onPress={() => addToCart(product)}>
+        <Text style={styles.addButtonText}>Add to Cart</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -363,81 +383,227 @@ function CartSummary() {
   const { items, totalItems, totalPrice, removeFromCart, updateQuantity } = useCartStore();
 
   return (
-    <div className="cart-summary">
-      <h3>Cart ({totalItems} items)</h3>
-      {items.map(item => (
-        <div key={item.id} className="cart-item">
-          <span>{item.name}</span>
-          <input
-            type="number"
-            value={item.quantity}
-            onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-            min="1"
-          />
-          <button onClick={() => removeFromCart(item.id)}>
-            Remove
-          </button>
-        </div>
-      ))}
-      <p>Total: ${totalPrice.toFixed(2)}</p>
-    </div>
+    <View style={styles.cartSummary}>
+      <Text style={styles.cartTitle}>Cart ({totalItems} items)</Text>
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.cartItem}>
+            <Text style={styles.cartItemName}>{item.name}</Text>
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity 
+                style={styles.quantityButton}
+                onPress={() => updateQuantity(item.id, item.quantity - 1)}
+              >
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{item.quantity}</Text>
+              <TouchableOpacity 
+                style={styles.quantityButton}
+                onPress={() => updateQuantity(item.id, item.quantity + 1)}
+              >
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity 
+              style={styles.removeButton}
+              onPress={() => removeFromCart(item.id)}
+            >
+              <Text style={styles.removeButtonText}>Remove</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+      <Text style={styles.cartTotal}>Total: ${totalPrice.toFixed(2)}</Text>
+    </View>
   );
 }
 ```
 
 ---
 
-## 💾 State Persistence
+## 💾 AsyncStorage for Mobile Persistence
 
-### localStorage and sessionStorage
+### AsyncStorage Integration
+
+AsyncStorage is React Native's equivalent to localStorage, providing persistent storage for mobile applications.
 
 ```jsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Custom hook for localStorage
-function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
-    }
-  });
+// Custom hook for AsyncStorage
+function useAsyncStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(initialValue);
+  const [loading, setLoading] = useState(true);
 
-  const setValue = (value) => {
+  useEffect(() => {
+    const loadStoredValue = async () => {
+      try {
+        const item = await AsyncStorage.getItem(key);
+        if (item !== null) {
+          setStoredValue(JSON.parse(item));
+        }
+      } catch (error) {
+        console.error(`Error reading AsyncStorage key "${key}":`, error);
+        Alert.alert('Error', 'Failed to load saved data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStoredValue();
+  }, [key]);
+
+  const setValue = async (value) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      await AsyncStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error);
+      console.error(`Error setting AsyncStorage key "${key}":`, error);
+      Alert.alert('Error', 'Failed to save data');
     }
   };
 
-  return [storedValue, setValue];
+  return [storedValue, setValue, loading];
 }
 
 // Usage example
 function UserPreferences() {
-  const [theme, setTheme] = useLocalStorage('theme', 'light');
-  const [language, setLanguage] = useLocalStorage('language', 'en');
+  const [theme, setTheme] = useAsyncStorage('theme', 'light');
+  const [language, setLanguage] = useAsyncStorage('language', 'en');
+  const [notifications, setNotifications] = useAsyncStorage('notifications', true);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading preferences...</Text>
+      </View>
+    );
+  }
 
   return (
-    <div>
-      <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
+    <View style={styles.container}>
+      <Text style={styles.title}>User Preferences</Text>
       
-      <select value={language} onChange={(e) => setLanguage(e.target.value)}>
-        <option value="en">English</option>
-        <option value="es">Spanish</option>
-        <option value="fr">French</option>
-      </select>
-    </div>
+      <View style={styles.settingGroup}>
+        <Text style={styles.settingLabel}>Theme:</Text>
+        <View style={styles.buttonGroup}>
+          <TouchableOpacity 
+            style={[styles.themeButton, theme === 'light' && styles.activeButton]}
+            onPress={() => setTheme('light')}
+          >
+            <Text style={[styles.buttonText, theme === 'light' && styles.activeButtonText]}>
+              Light
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.themeButton, theme === 'dark' && styles.activeButton]}
+            onPress={() => setTheme('dark')}
+          >
+            <Text style={[styles.buttonText, theme === 'dark' && styles.activeButtonText]}>
+              Dark
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.settingGroup}>
+        <Text style={styles.settingLabel}>Language:</Text>
+        <View style={styles.buttonGroup}>
+          <TouchableOpacity 
+            style={[styles.languageButton, language === 'en' && styles.activeButton]}
+            onPress={() => setLanguage('en')}
+          >
+            <Text style={[styles.buttonText, language === 'en' && styles.activeButtonText]}>
+              English
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.languageButton, language === 'es' && styles.activeButton]}
+            onPress={() => setLanguage('es')}
+          >
+            <Text style={[styles.buttonText, language === 'es' && styles.activeButtonText]}>
+              Spanish
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.languageButton, language === 'fr' && styles.activeButton]}
+            onPress={() => setLanguage('fr')}
+          >
+            <Text style={[styles.buttonText, language === 'fr' && styles.activeButtonText]}>
+              French
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.settingGroup}>
+        <Text style={styles.settingLabel}>Notifications:</Text>
+        <TouchableOpacity 
+          style={[styles.notificationButton, notifications && styles.activeButton]}
+          onPress={() => setNotifications(!notifications)}
+        >
+          <Text style={[styles.buttonText, notifications && styles.activeButtonText]}>
+            {notifications ? 'Enabled' : 'Disabled'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
+}
+
+// Advanced AsyncStorage patterns
+class StorageManager {
+  static async saveUserData(userData) {
+    try {
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      return true;
+    } catch (error) {
+      console.error('Error saving user data:', error);
+      return false;
+    }
+  }
+
+  static async getUserData() {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
+      return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.error('Error getting user data:', error);
+      return null;
+    }
+  }
+
+  static async clearAllData() {
+    try {
+      await AsyncStorage.clear();
+      return true;
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      return false;
+    }
+  }
+
+  static async getStorageSize() {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      let totalSize = 0;
+      
+      for (const key of keys) {
+        const value = await AsyncStorage.getItem(key);
+        totalSize += value ? value.length : 0;
+      }
+      
+      return totalSize;
+    } catch (error) {
+      console.error('Error calculating storage size:', error);
+      return 0;
+    }
+  }
 }
 ```
 
@@ -446,62 +612,122 @@ function UserPreferences() {
 ## 🧩 Mini Tasks
 
 ### Task 1: Context API Shopping Cart
-Create a shopping cart using Context API with add/remove/update functionality.
+Create a shopping cart using Context API with add/remove/update functionality for mobile.
+
+**Requirements:**
+- Use Context API for state management
+- Implement cart operations (add, remove, update quantity)
+- Display cart items in FlatList
+- Show total items and price
+- Use TouchableOpacity for interactions
+- Handle empty cart state
 
 ### Task 2: Redux Toolkit Counter
 Build a counter app with Redux Toolkit including increment, decrement, and reset actions.
 
-### Task 3: Zustand Todo App
-Create a todo application using Zustand with persistence.
+**Requirements:**
+- Use Redux Toolkit for state management
+- Implement counter actions (increment, decrement, reset)
+- Display current count with large, readable text
+- Use TouchableOpacity buttons
+- Show action history
+- Implement undo/redo functionality
 
-### Task 4: State Persistence
-Implement localStorage persistence for user preferences and settings.
+### Task 3: Zustand Todo App
+Create a todo application using Zustand with AsyncStorage persistence.
+
+**Requirements:**
+- Use Zustand for state management
+- Implement CRUD operations for todos
+- Persist todos using AsyncStorage
+- Add todo categories and filtering
+- Implement search functionality
+- Use FlatList for todo display
+
+### Task 4: AsyncStorage User Settings
+Implement AsyncStorage persistence for user preferences and settings.
+
+**Requirements:**
+- Create custom AsyncStorage hooks
+- Save user preferences (theme, language, notifications)
+- Implement data migration for app updates
+- Handle storage errors gracefully
+- Add data export/import functionality
+- Implement storage cleanup
 
 ---
 
 ## 🚀 Project: E-commerce Shopping Cart
 
-Build a complete e-commerce shopping cart with persistent state management.
+Build a complete e-commerce shopping cart with persistent state management for mobile.
 
 ### Features:
-- Product catalog with categories
-- Shopping cart with add/remove/update
-- User authentication state
-- Order history
+- Product catalog with categories and search
+- Shopping cart with add/remove/update functionality
+- User authentication state management
+- Order history with AsyncStorage persistence
 - Wishlist functionality
-- Persistent cart across sessions
-- Responsive design
+- Persistent cart across app sessions
+- Offline cart functionality
+- Push notifications for cart reminders
 
 ### Technical Requirements:
 - Choose one state management solution (Context, Redux, or Zustand)
-- Implement state persistence
+- Implement AsyncStorage for persistence
 - Handle loading and error states
-- Use React Router for navigation
-- Implement form validation
+- Use React Navigation for screen navigation
+- Implement form validation for checkout
+- Handle network connectivity changes
+- Implement deep linking for product sharing
+
+### Mobile-Specific Considerations:
+- Optimize for different screen sizes
+- Handle app lifecycle events (background/foreground)
+- Implement haptic feedback for interactions
+- Use platform-specific UI patterns
+- Handle memory constraints
+- Implement proper error boundaries
 
 ### State Structure:
 ```jsx
-// Example state structure
+// Example state structure for mobile e-commerce app
 {
   user: {
     isAuthenticated: false,
     profile: null,
-    preferences: {}
+    preferences: {
+      theme: 'light',
+      language: 'en',
+      notifications: true
+    }
   },
   cart: {
     items: [],
     totalItems: 0,
-    totalPrice: 0
+    totalPrice: 0,
+    lastUpdated: null
   },
   products: {
     items: [],
     categories: [],
+    searchResults: [],
     loading: false,
-    error: null
+    error: null,
+    lastFetch: null
   },
   orders: {
     history: [],
-    currentOrder: null
+    currentOrder: null,
+    loading: false
+  },
+  wishlist: {
+    items: [],
+    totalItems: 0
+  },
+  app: {
+    isOnline: true,
+    lastSync: null,
+    version: '1.0.0'
   }
 }
 ```
@@ -511,22 +737,30 @@ Build a complete e-commerce shopping cart with persistent state management.
 ## 📚 Next Steps
 
 ### Prepare for Course 5:
-- Learn about service workers
-- Understand code splitting concepts
-- Practice performance optimization
-- Learn about caching strategies
+- Learn about React Native performance optimization
+- Understand code splitting and lazy loading
+- Practice with React Native debugging tools
+- Learn about mobile-specific caching strategies
+- Understand app bundle optimization
+
+### Additional Resources:
+- [React Native Performance](https://reactnative.dev/docs/performance)
+- [AsyncStorage Documentation](https://react-native-async-storage.github.io/async-storage/)
+- [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
+- [Zustand Documentation](https://github.com/pmndrs/zustand)
 
 ### Key Takeaways:
-- ✅ Context API is great for simple state sharing
-- ✅ Redux Toolkit reduces boilerplate significantly
-- ✅ Zustand provides a lightweight alternative
-- ✅ State persistence improves user experience
-- ✅ Choose the right tool for your project size
+- ✅ Context API is great for simple state sharing in mobile apps
+- ✅ Redux Toolkit reduces boilerplate significantly for complex apps
+- ✅ Zustand provides a lightweight alternative with AsyncStorage integration
+- ✅ AsyncStorage enables persistent state across app sessions
+- ✅ Choose the right state management tool based on app complexity
+- ✅ Mobile state management requires consideration of app lifecycle
 
 **Ready for Course 5?** 🚀
 
-Move on to **Course 5: Offline Support & Optimization** to learn about performance optimization and offline capabilities!
+Move on to **Course 5: Offline Support & Optimization** to learn about performance optimization and offline capabilities for React Native applications!
 
 ---
 
-*Happy coding! Remember, good state management is crucial for scalable applications.*
+*Happy mobile coding! Remember, good state management is crucial for scalable React Native applications.*
