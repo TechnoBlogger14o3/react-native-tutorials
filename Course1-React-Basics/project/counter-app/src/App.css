@@ -1,0 +1,320 @@
+/* counter-app/src/App.css */
+.counter-app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.counter-container {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.counter-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.counter-header h1 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.counter-header p {
+  color: #666;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.counter-display {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.counter-display.positive {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.counter-display.negative {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
+}
+
+.count-value {
+  font-size: 4rem;
+  font-weight: 300;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.count-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.step-controls {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.step-controls h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.step-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.counter-button {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+  min-width: 60px;
+}
+
+.counter-button:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.counter-button:active {
+  transform: translateY(0);
+}
+
+.counter-button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.counter-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.counter-controls {
+  margin-bottom: 30px;
+}
+
+.control-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.increment-button {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+  flex: 1;
+  padding: 15px;
+  font-size: 1.1rem;
+}
+
+.increment-button:hover {
+  background: #1e7e34;
+  border-color: #1e7e34;
+}
+
+.decrement-button {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+  flex: 1;
+  padding: 15px;
+  font-size: 1.1rem;
+}
+
+.decrement-button:hover {
+  background: #c82333;
+  border-color: #c82333;
+}
+
+.operation-button {
+  background: #6f42c1;
+  color: white;
+  border-color: #6f42c1;
+  flex: 1;
+  padding: 15px;
+  font-size: 1rem;
+}
+
+.operation-button:hover {
+  background: #5a32a3;
+  border-color: #5a32a3;
+}
+
+.reset-button {
+  background: #6c757d;
+  color: white;
+  border-color: #6c757d;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+}
+
+.reset-button:hover {
+  background: #545b62;
+  border-color: #545b62;
+}
+
+.history-section {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.history-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.clear-history-button {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.clear-history-button:hover {
+  background: #c82333;
+  border-color: #c82333;
+}
+
+.no-history {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 4px solid #007bff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.history-operation {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.history-time {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.features-info {
+  background: #e3f2fd;
+  border-radius: 10px;
+  padding: 20px;
+  border-left: 4px solid #2196f3;
+}
+
+.features-info h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.features-info ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.features-info li {
+  margin-bottom: 5px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .counter-container {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .counter-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .count-value {
+    font-size: 3rem;
+  }
+  
+  .step-buttons {
+    flex-wrap: wrap;
+  }
+  
+  .control-row {
+    flex-direction: column;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+}
+
+/* Animation for count changes */
+.count-value {
+  transition: all 0.3s ease;
+}
+
+.count-value.updating {
+  transform: scale(1.1);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
